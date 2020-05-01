@@ -2,6 +2,8 @@ backend_opset_version = {
     'Abs': [1, 6],
     'Acos': [7],
     'Acosh': [9],
+    'Adagrad': [],
+    'Adam': [],
     'Add': [1, 6, 7],
     'And': [1, 7],
     'ArgMax': [1, 11],
@@ -19,6 +21,7 @@ backend_opset_version = {
     'CastMap': [],
     'CategoryMapper': [],
     'Ceil': [1, 6],
+    'Celu': [],
     'Clip': [1, 6, 11],
     'Compress': [9, 11],
     'Concat': [1, 4, 11],
@@ -57,7 +60,10 @@ backend_opset_version = {
     'GlobalAveragePool': [1],
     'GlobalLpPool': [1, 2],
     'GlobalMaxPool': [1],
+    'Gradient': [],
+    'GraphCall': [],
     'Greater': [1, 7, 9],
+    'GreaterOrEqual': [],
     'HardSigmoid': [1, 6],
     'Hardmax': [1, 11],
     'Identity': [1],
@@ -65,6 +71,7 @@ backend_opset_version = {
     'ImageScaler': [1],
     'Imputer': [],
     'InstanceNormalization': [1, 6],
+    'Inverse': [],
     'IsInf': [10],
     'IsNaN': [9],
     'LRN': [1],
@@ -72,6 +79,7 @@ backend_opset_version = {
     'LabelEncoder': [],
     'LeakyRelu': [1, 6],
     'Less': [1, 7, 9],
+    'LessOrEqual': [],
     'LinearClassifier': [],
     'LinearRegressor': [],
     'Log': [1, 6],
@@ -86,9 +94,11 @@ backend_opset_version = {
     'MaxRoiPool': [],
     'MaxUnpool': [9, 11],
     'Mean': [1, 6, 8],
+    'MeanSquaredDistance': [],
     'MeanVarianceNormalization': [1, 9],
     'Min': [1, 6, 8],
     'Mod': [10],
+    'Momentum': [],
     'Mul': [1, 6, 7],
     'Multinomial': [],
     'Neg': [1, 6],
@@ -125,7 +135,7 @@ backend_opset_version = {
     'ReduceSumSquare': [1, 11],
     'Relu': [1, 6],
     'Reshape': [1, 5],
-    'Resize': [10],
+    'Resize': [10, 11],
     'ReverseSequence': [10],
     'RoiAlign': [],
     'Round': [11],
@@ -152,6 +162,7 @@ backend_opset_version = {
     'Size': [1],
     'Slice': [1, 10, 11],
     'Softmax': [1, 11],
+    'SoftmaxCrossEntropyLoss': [],
     'Softplus': [1],
     'Softsign': [1],
     'SpaceToDepth': [1],
@@ -171,6 +182,7 @@ backend_opset_version = {
     'Transpose': [1],
     'TreeEnsembleClassifier': [],
     'TreeEnsembleRegressor': [],
+    'UnfoldToDepth': [],
     'Unique': [],
     'Unsqueeze': [1, 11],
     'Upsample': [7, 9],
@@ -199,12 +211,11 @@ backend_partial_support = {
                'with column major are not supported in Tensorflow.',
     'Mod': 'Mod Dividend or Divisor in int8/int16/uint8/uint16/uint32/uint64 '
            'are not supported in Tensorflow.',
-    'OneHot':
-        'OneHot indices in '
-        'uint16/uint32/uint64/int8/int16/float16/float/double, or OneHot '
-        'depth in '
-        'uint8/uint16/uint32/uint64/int8/int16/int64/float16/float/double '
-        'are not supported in Tensorflow.',
+    'OneHot': 'OneHot indices in '
+              'uint16/uint32/uint64/int8/int16/float16/float/double, or OneHot '
+              'depth in '
+              'uint8/uint16/uint32/uint64/int8/int16/int64/float16/float/double '
+              'are not supported in Tensorflow.',
     'RNN': 'RNN with clip is not supported in Tensorflow.',
     'Resize': 'Resize required 4D input in Tensorflow.',
     'Upsample': 'Upsample required 4D input in Tensorflow.'

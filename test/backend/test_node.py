@@ -1495,6 +1495,123 @@ class TestNode(unittest.TestCase):
     output = run_node(node_def, [start, limit, delta])
     np.testing.assert_equal(output['y'], range(start, limit, delta))
 
+  def test_resize(self):
+    data = np.array(
+        [[[[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]]]],
+        dtype=np.float32)
+    roi = np.array([], dtype=np.float32)
+    scales = np.array([], dtype=np.float32)
+    sizes = np.array([1, 1, 3, 3], dtype=np.int64)
+
+    # resize_nearest
+    node_def = helper.make_node(
+        "Resize",
+        inputs=['X', 'roi', 'scales', 'sizes'],
+        outputs=['Y'],
+        coordinate_transformation_mode='tf_half_pixel_for_nn',
+        mode='nearest',
+        nearest_mode='floor')
+    expected = np.array(
+        [[[[1.0, 3.0, 4.0], [9.0, 11.0, 12.0], [13.0, 15.0, 16.0]]]],
+        dtype=np.float32)  # expected value is calculated by onnx-runtime
+    output = run_node(node_def, [data, roi, scales, sizes])
+    np.testing.assert_almost_equal(output["Y"], expected)
+
+    # resize_linear
+    node_def = helper.make_node("Resize",
+                                inputs=['X', 'roi', 'scales', 'sizes'],
+                                outputs=['Y'],
+                                mode='linear')
+    expected = np.array(
+        [[[[1.8333335, 3.1666665, 4.5], [7.1666665, 8.5, 9.833333],
+           [12.5, 13.833334, 15.166666]]]],
+        dtype=np.float32)  # expected value is calculated by onnx-runtime
+    output = run_node(node_def, [data, roi, scales, sizes])
+    np.testing.assert_allclose(output['Y'], expected, rtol=1e-6, atol=1e-6)
+
+    # resize_cubic
+    node_def = helper.make_node("Resize",
+                                inputs=['X', 'roi', 'scales', 'sizes'],
+                                outputs=['Y'],
+                                mode='cubic',
+                                cubic_coeff_a=-0.5,
+                                exclude_outside=1)
+    expected = np.array(
+        [[[[1.5142218, 2.9113774, 4.3085337], [7.102845, 8.5, 9.897156],
+           [12.691468, 14.088623, 15.485781]]]],
+        dtype=np.float32)  # expected value is calculated by onnx-runtime
+    output = run_node(node_def, [data, roi, scales, sizes])
+    np.testing.assert_allclose(output['Y'], expected, rtol=1e-3, atol=1e-6)
+
+    # crop_and_resize_nearest with scales
+    node_def = helper.make_node(
+        "Resize",
+        inputs=['X', 'roi', 'scales'],
+        outputs=['Y'],
+        coordinate_transformation_mode='tf_crop_and_resize',
+        mode='nearest',
+        nearest_mode='round_prefer_ceil',
+        extrapolation_value=-10.0)
+    roi = np.array([0, 0, 0.4, 0.6, 1, 1, 1.2, 1.7], dtype=np.float32)
+    scales = np.array([1.0, 1.0, 0.8, 0.8], dtype=np.float32)
+    expected = np.array(
+        [[[[7.0, -10.0, -10.0], [11.0, -10.0, -10.0], [-10.0, -10.0, -10.0]]]],
+        dtype=np.float32)  # expected value is calculated by onnx-runtime
+    output = run_node(node_def, [data, roi, scales])
+    np.testing.assert_almost_equal(output["Y"], expected)
+
+    # crop_and_resize_nearest with sizes
+    node_def = helper.make_node(
+        "Resize",
+        inputs=['X', 'roi', 'scales', 'sizes'],
+        outputs=['Y'],
+        coordinate_transformation_mode='tf_crop_and_resize',
+        mode='nearest',
+        nearest_mode='round_prefer_ceil',
+    )
+    roi = np.array([0, 0, 0.4, 0.6, 1, 1, 0.6, 0.8], dtype=np.float32)
+    scales = np.array([], dtype=np.float32)
+    sizes = np.array([1, 1, 3, 3], dtype=np.int64)
+    expected = np.array(
+        [[[[7.0, 7.0, 7.0], [11.0, 11.0, 11.0], [11.0, 11.0, 11.0]]]],
+        dtype=np.float32)  # expected value is calculated by onnx-runtime
+    output = run_node(node_def, [data, roi, scales, sizes])
+    np.testing.assert_almost_equal(output["Y"], expected)
+
+    # crop_and_resize_linear with scales
+    node_def = helper.make_node(
+        "Resize",
+        inputs=['X', 'roi', 'scales'],
+        outputs=['Y'],
+        mode='linear',
+        coordinate_transformation_mode='tf_crop_and_resize',
+        extrapolation_value=20.0)
+    roi = np.array([0, 0, 0.4, 0.6, 1, 1, 1.2, 1.7], dtype=np.float32)
+    scales = np.array([1.0, 1.0, 0.8, 0.8], dtype=np.float32)
+    expected = np.array(
+        [[[[7.600001, 20.0, 20.0], [12.400001, 20.0, 20.0], [20.0, 20.0, 20.0]]]
+        ],
+        dtype=np.float32)  # expected value is calculated by onnx-runtime
+    output = run_node(node_def, [data, roi, scales])
+    np.testing.assert_allclose(output["Y"], expected, rtol=1e-6, atol=1e-6)
+
+    # crop_and_resize_linear with sizes
+    node_def = helper.make_node(
+        "Resize",
+        inputs=['X', 'roi', 'scales', 'sizes'],
+        outputs=['Y'],
+        mode='linear',
+        coordinate_transformation_mode='tf_crop_and_resize',
+    )
+    roi = np.array([0, 0, 0.4, 0.6, 1, 1, 0.6, 0.8], dtype=np.float32)
+    scales = np.array([], dtype=np.float32)
+    sizes = np.array([1, 1, 3, 3], dtype=np.int64)
+    expected = np.array(
+        [[[[7.600001, 7.9, 8.2], [8.8, 9.1, 9.4], [10.0, 10.300001, 10.6]]]],
+        dtype=np.float32)  # expected value is calculated by onnx-runtime
+    output = run_node(node_def, [data, roi, scales, sizes])
+    np.testing.assert_allclose(output["Y"], expected, rtol=1e-6, atol=1e-6)    
+
   def test_round(self):
     if legacy_opset_pre_ver(11):
       raise unittest.SkipTest("ONNX version {} doesn't support Round.".format(
