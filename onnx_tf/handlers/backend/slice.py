@@ -24,8 +24,8 @@ class Slice(BackendHandler):
     axes = node.attrs.get("axes", list(range(slice_len)))
 
     for i in range(slice_len):
-      starts[i] = full_sizes[axes[i]] + starts[i] if starts[i] < 0 else starts[
-          i]
+      starts[i] = full_sizes[
+          axes[i]] + starts[i] if starts[i] < 0 else starts[i]
       ends[i] = full_sizes[axes[i]] + ends[i] if ends[i] < 0 else ends[i]
       if full_sizes[axes[i]] is not None:
         ends[i] = np.min([full_sizes[axes[i]], ends[i]])
@@ -34,15 +34,14 @@ class Slice(BackendHandler):
       full_sizes[axes[i]] = ends[i] - starts[i]
 
     return [
-        cls.make_tensor_from_onnx_node(
-            node,
-            tf_func=tf.slice,
-            inputs=[
-                tensor_dict[node.inputs[0]],
-                tf.constant(full_begin),
-                tf.constant(full_sizes)
-            ],
-            **kwargs)
+        cls.make_tensor_from_onnx_node(node,
+                                       tf_func=tf.slice,
+                                       inputs=[
+                                           tensor_dict[node.inputs[0]],
+                                           tf.constant(full_begin),
+                                           tf.constant(full_sizes)
+                                       ],
+                                       **kwargs)
     ]
 
   @classmethod
@@ -55,18 +54,19 @@ class Slice(BackendHandler):
     # first of all, get the input tensor shape
     input_tensor_shape = tf.shape(input_tensor, out_type=ends.dtype)
 
-    axes = tensor_dict[node.inputs[3]] if len(
-        node.inputs) >= 4 else tf.range(tf.shape(starts)[0], dtype=ends.dtype)
+    axes = tensor_dict[node.inputs[3]] if len(node.inputs) >= 4 else tf.range(
+        tf.shape(starts)[0], dtype=ends.dtype)
 
     is_axes_negative = tf.less(axes, tf.zeros_like(axes))
-    axes = tf.where(is_axes_negative, axes + tf.cast(tf.rank(input_tensor), axes.dtype), axes)
+    axes = tf.where(is_axes_negative,
+                    axes + tf.cast(tf.rank(input_tensor), axes.dtype), axes)
 
     # expand a dimension of 1 at the end
     sparse_indices = tf.expand_dims(axes, -1)
 
     # build the indexed dimension sizes as sparse_shape
-    sparse_shape = tf.gather_nd(
-        params=input_tensor_shape, indices=sparse_indices)
+    sparse_shape = tf.gather_nd(params=input_tensor_shape,
+                                indices=sparse_indices)
     sparse_shape = tf.cast(sparse_shape, ends.dtype)
 
     # take care of starts, ends that are larger than the dim size.
@@ -89,11 +89,11 @@ class Slice(BackendHandler):
     dense_begins = tf.compat.v1.sparse_to_dense(sparse_indices, output_shape,
                                                 starts_final)
     # create dense tensor, pad -1 for next step
-    dense_ends = tf.compat.v1.sparse_to_dense(
-        sparse_indices,
-        output_shape,
-        ends_final,
-        default_value=tf.constant(-1, dtype=dense_begins.dtype))
+    dense_ends = tf.compat.v1.sparse_to_dense(sparse_indices,
+                                              output_shape,
+                                              ends_final,
+                                              default_value=tf.constant(
+                                                  -1, dtype=dense_begins.dtype))
     # replace -1 with respective dimension sizes
     dense_ends = tf.where(
         tf.equal(dense_ends, tf.constant(-1, dtype=dense_begins.dtype)),
@@ -110,15 +110,18 @@ class Slice(BackendHandler):
       dense_steps = tf.ones(input_tensor_shape.shape, ends.dtype)
 
     return [
-        cls.make_tensor_from_onnx_node(
-            node,
-            inputs=[
-                tensor_dict[node.inputs[0]], dense_begins, dense_ends,
-                dense_steps
-            ],
-            **kwargs)
+        cls.make_tensor_from_onnx_node(node,
+                                       inputs=[
+                                           tensor_dict[node.inputs[0]],
+                                           dense_begins, dense_ends, dense_steps
+                                       ],
+                                       **kwargs)
     ]
 
   @classmethod
   def version_11(cls, node, **kwargs):
+    return cls.version_10(node, **kwargs)
+
+  @classmethod
+  def version_13(cls, node, **kwargs):
     return cls.version_10(node, **kwargs)
