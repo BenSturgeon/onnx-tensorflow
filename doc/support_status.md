@@ -159,7 +159,7 @@ Notes:
 |Softplus|**1**|1|1|1|1|1|1|1|1|1|1|1|1|
 |Softsign|**1**|1|1|1|1|1|1|1|1|1|1|1|1|
 |SpaceToDepth|**1**|1|1|1|1|1|1|1|1|1|1|1|**13**:small_red_triangle:|
-|Split|**1**|**2**|2|2|2|2|2|2|2|2|**11**|11|**13**:small_red_triangle:|
+|Split|**1**|**2**|2|2|2|2|2|2|2|2|**11**|11|**13**|
 |SplitToSequence|-|-|-|-|-|-|-|-|-|-|**11**:small_red_triangle:|11:small_red_triangle:|11:small_red_triangle:|
 |Sqrt|**1**|1|1|1|1|**6**|6|6|6|6|6|6|**13**:small_red_triangle:|
 |Squeeze|**1**|1|1|1|1|1|1|1|1|1|**11**|11|**13**:small_red_triangle:|

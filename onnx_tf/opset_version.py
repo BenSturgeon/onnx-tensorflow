@@ -164,7 +164,7 @@ backend_opset_version = {
     'Softplus': [1],
     'Softsign': [1],
     'SpaceToDepth': [1],
-    'Split': [1, 2, 11],
+    'Split': [1, 2, 11, 13],
     'SplitToSequence': [],
     'Sqrt': [1, 6],
     'Squeeze': [1, 11],
