@@ -83,8 +83,8 @@ Testing requires significant hardware resources, but nonetheless, we highly reco
 
 PS. Please ensure your code is backward compatible with older version of ONNX. You can easily test it by running the following [docker container](https://hub.docker.com/r/winnietsang/onnx-tensorflow) with your code. If you don't have Docker installed yet, please follow this link to install [Docker](https://docs.docker.com/install/) on your environment.
 ```
-sudo docker pull winnietsang/onnx-tensorflow:onnx1.6.0-tf1.15.0
-sudo docker run -it --name=YOUR-CONTAINER-NAME winnietsang/onnx-tensorflow:onnx1.6.0-tf1.15.0 /bin/bash
+sudo docker pull winnietsang/onnx-tensorflow:onnx1.7.0-tf1.15
+sudo docker run -it --name=YOUR-CONTAINER-NAME winnietsang/onnx-tensorflow:onnx1.7.0-tf1.15 /bin/bash
 git clone https://github.com/YOUR-USERNAME/onnx-tensorflow.git
 cd onnx-tensorflow
 git checkout -b YOUR-BRANCH --track remotes/origin/YOUR-BRANCH
@@ -94,6 +94,9 @@ python3 -m unittest discover test
 
 #### Test Help:
 https://docs.python.org/2/library/unittest.html
+
+#### Note:
+Branch tf-1.x is for users who cannot upgrade to Tensorflow 2.x yet. This branch will only support up to ONNX OpSet 12 operators. If any user need to use operators in Opset 13 or above please upgrade Tensoflow to 2.x and use the master branch of this repo. By January 1st, 2021 this branch will switch to maintenance mode only, no new development will be added into this branch from then on.
 
 ## Authors:
 Arpith Jacob (IBM Research)
